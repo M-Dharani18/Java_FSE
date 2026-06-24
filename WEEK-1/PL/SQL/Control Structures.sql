@@ -1,54 +1,52 @@
 Scenario 1: The bank wants to apply a discount to loan interest rates for customers above 60 years old.
 
+SET SERVEROUTPUT ON;
 BEGIN
-
-for data in(
-    select c.id,c.age,l.interestRate
-    from customers c join loans l 
-    on c.id = l.customer_id
-) 
-LOOP
-
-    if data.age > 60 then
-        update loans
-        set interestRate = interestRate -1
-        where customer_id = data.id;
-    end if;
-END LOOP;
+   FOR data IN (
+      SELECT c.CustomerID,l.LoanID,FLOOR(MONTHS_BETWEEN(SYSDATE,c.DOB)/12) age
+      FROM Customers c JOIN Loans l
+      ON c.CustomerID = l.CustomerID
+   )
+   LOOP
+      IF data.age > 60 THEN
+         UPDATE Loans
+         SET InterestRate = InterestRate - 1
+         WHERE LoanID = data.LoanID;
+      END IF;
+   END LOOP;
 END;
 /
-
 
 Scenario 2: A customer can be promoted to VIP status based on their balance.
 
 BEGIN
-    for data in(
-        select id,balance
-        from customers 
-    ) 
-    loop
-        if data.balance>10000 then
-            update customers
-            set isVIP = 'True'
-            where id=data.id;
-        end if;
-    end loop;
-end;
+   FOR data IN (
+      SELECT CustomerID,Balance
+      FROM Customers
+   )
+   LOOP
+      IF data.Balance > 10000 THEN
+         UPDATE Customers
+         SET IsVIP = 'TRUE'
+         WHERE CustomerID = data.CustomerID;
+      END IF;
+   END LOOP;
+END;
 /
 
 Scenario 3: The bank wants to send reminders to customers whose loans are due within the next 30 days.
 
 BEGIN
-    for data in (
-        select id,dueDate
-        from loans 
-        where dueDate between sysdate and sysdate+30
-    )
-    loop
-         DBMS_OUTPUT.PUT_LINE(
-         'Reminder sent'|| data.id|| ' Loan due on  || data.dueDate'
-    
-      );
-    end loop;
-end;
+   FOR data IN (
+      SELECT c.Name,l.LoanID,l.EndDate
+      FROM Customers c
+      JOIN Loans l
+      ON c.CustomerID = l.CustomerID
+      WHERE l.EndDate BETWEEN SYSDATE
+      AND SYSDATE + 30
+   )
+   LOOP
+      DBMS_OUTPUT.PUT_LINE( 'Reminder: Loan ' || data.LoanID || ' for '|| data.Name|| ' due on '|| data.EndDate);
+   END LOOP;
+END;
 /
