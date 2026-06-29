@@ -2,8 +2,7 @@ package org.example;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MyServiceTest {
     @Test
@@ -14,5 +13,12 @@ public class MyServiceTest {
         String result = service.fetchData();
         System.out.println(result);
         assertEquals("Mock Data", result);
+    }
+    @Test
+    public void testVerifyInteraction() {
+        ExternalApi mockApi = mock(ExternalApi.class);
+        MyService service = new MyService(mockApi);
+        service.fetchData();
+        verify(mockApi).getData();
     }
 }
